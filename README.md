@@ -2,17 +2,25 @@
 ***
 ## 3.23
 ### 1）学写markdown标记语言
-比如# 一级标题 ## 二级标题 **突出** `文中代码`
+比如# Chapter ## subchapter **emphasis** `code`
 ```javascript
 const name = "lihaoyang"
 ```
-
-1.list
-2.list
+1. list
+2. list
 
 - list
+- list
 
-[link](https://github.com/MZ-star-1/FOCUS-/edit/main/README.md)
+**[link](https://github.com/MZ-star-1/FOCUS-/edit/main/README.md)**
+
+**[image name](https://avatars.githubusercontent.com/u/258089284?v=4&size=64)**
+
+![image name](https://avatars.githubusercontent.com/u/258089284?v=4&size=64)
+
+|col1|col2|col3|
+|---|---|---|
+|data1|data2|data3|
 ***
 ## 3.24
 ***
