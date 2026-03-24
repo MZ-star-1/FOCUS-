@@ -82,7 +82,7 @@ while (1)
 ```
 
    - ST-LINK与STM32相接并接入电脑后，STM32的指示灯不亮，检查ST-LINK的3.3V接口是否正确
-   - 烧录过程中显示 **“No ST-LINK detected”** ，
+   - 烧录过程中显示 **“No ST-LINK detected”** ，安装ST-LINK驱动
 ***
 ## 3.25
 ***
