@@ -2,7 +2,7 @@
 ***
 ## 3.23
 ### 1）学写markdown标记语言
-比如# Chapter ## subchapter **emphasis** `code`
+如# Chapter ## subchapter **emphasis** `code`
 ```javascript
 const name = "lihaoyang"
 ```
@@ -26,7 +26,7 @@ const name = "lihaoyang"
 
 1. 硬件准备与软件安装
 - 包括STM32CubeMX、Keil MDK-ARM
-3. 配置GPIO引脚（PB0与PB1）
+2. 配置GPIO引脚（PB0与PB1）
 - 分别命名为IN1与IN2
 3. 配置系统时钟
 - 遇到提示“No solution found using the current selected sources”,改用内部时钟，设置HCLK为48Hz解决
@@ -37,7 +37,7 @@ const name = "lihaoyang"
 ## 3.24
 ### 1) Task1续
 
-4. 在Keil中添加控制代码
+5. 在Keil中添加控制代码
 ```javascript
 /* USER CODE BEGIN 3 */
 while (1)
