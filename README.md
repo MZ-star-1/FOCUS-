@@ -24,10 +24,13 @@ const name = "lihaoyang"
 
 ### 2) Task1
 
-1. 配置GPIO引脚（PB0与PB1）
-2. 配置系统时钟
+1. 硬件准备与软件安装
+- 包括STM32CubeMX、Keil MDK-ARM
+3. 配置GPIO引脚（PB0与PB1）
+- 分别命名为IN1与IN2
+3. 配置系统时钟
 - 遇到提示“No solution found using the current selected sources”,改用内部时钟，设置HCLK为48Hz解决
-3. 设置工程并生成代码
+4. 设置工程并生成代码
 - 遇到提示“The Firmware Package or one of its dependencies required by the Project is not available in your STM32CubeMX Repository”,下载STM32F1固件包解决
 
 ***
@@ -79,6 +82,7 @@ while (1)
 ```
 
    - ST-LINK与STM32相接并接入电脑后，STM32的指示灯不亮，检查ST-LINK的3.3V接口是否正确
+   - 
 ***
 ## 3.25
 ***
