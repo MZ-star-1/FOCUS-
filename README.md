@@ -25,11 +25,16 @@ const name = "lihaoyang"
 ### 2) Task1
 
 1. 配置GPIO引脚（PB0与PB1）
-2. 配置系统时钟 遇到提示“No solution found using the current selected sources”,改用内部时钟，设置HCLK为48Hz解决
-3. 设置工程并生成代码 遇到提示“The Firmware Package or one of its dependencies required by the Project is not available in your STM32CubeMX Repository”,下载STM32F1固件包解决
+2. 配置系统时钟
+   - 遇到提示“No solution found using the current selected sources”,改用内部时钟，设置HCLK为48Hz解决
+4. 设置工程并生成代码
+   - 遇到提示“The Firmware Package or one of its dependencies required by the Project is not available in your STM32CubeMX Repository”,下载STM32F1固件包解决
 
 ***
 ## 3.24
+### 1) Task1续
+
+4. 
 ***
 ## 3.25
 ***
