@@ -26,9 +26,9 @@ const name = "lihaoyang"
 
 1. 配置GPIO引脚（PB0与PB1）
 2. 配置系统时钟
-   - 遇到提示“No solution found using the current selected sources”,改用内部时钟，设置HCLK为48Hz解决
+- 遇到提示“No solution found using the current selected sources”,改用内部时钟，设置HCLK为48Hz解决
 3. 设置工程并生成代码
-   - 遇到提示“The Firmware Package or one of its dependencies required by the Project is not available in your STM32CubeMX Repository”,下载STM32F1固件包解决
+- 遇到提示“The Firmware Package or one of its dependencies required by the Project is not available in your STM32CubeMX Repository”,下载STM32F1固件包解决
 
 ***
 ## 3.24
@@ -63,8 +63,8 @@ while (1)
 ```
 
 5. 编译与下载
-   - 杜邦线母头插不进STM32排针，确认母头无正反之分，适当用力插入
-   - 不清楚ST-LINK的接口排布
+- 杜邦线母头插不进STM32排针，确认母头无正反之分，适当用力插入
+- 不清楚ST-LINK的接口排布
 ```
 ┌────────────────────────────┐
 │  (缺口)                     │
@@ -77,6 +77,8 @@ while (1)
 │                             │
 └────────────────────────────┘
 ```
+
+   - ST-LINK与STM32相接并接入电脑后，STM32的指示灯不亮，检查ST-LINK的3.3V接口是否正确
 ***
 ## 3.25
 ***
