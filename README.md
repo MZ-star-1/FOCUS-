@@ -25,7 +25,7 @@ const name = "lihaoyang"
 ### 2) Task1
 
 1. 硬件准备与软件安装
-- 包括STM32CubeMX、Keil MDK-ARM
+- 软件包括STM32CubeMX、Keil MDK-ARM
 2. 配置GPIO引脚（PB0与PB1）
 - 分别命名为IN1与IN2
 3. 配置系统时钟
