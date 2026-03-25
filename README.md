@@ -67,7 +67,7 @@ while (1)
 
 5. 编译与下载
 - 杜邦线母头插不进STM32排针，确认母头无正反之分，适当用力插入
-- 不清楚ST-LINK的接口排布
+- 不清楚ST-LINK的接口排布，参考视频**[ST-Link的接线及使用](https://www.bilibili.com/video/BV1TPbyz8Emg?buvid=Y64814682A5A81F748A99AE3AF898D87BC6A&from_spmid=main.my-history.0.0&is_story_h5=false&mid=T3lXMOTTPxrUA5U4Rq0ehw%3D%3D&plat_id=116&share_from=ugc&share_medium=iphone&share_plat=ios&share_session_id=49F0E274-D3C2-4392-9BF3-755EF44B18D8&share_source=WEIXIN&share_tag=s_i&spmid=united.player-video-detail.0.0&timestamp=1774411950&unique_k=cI93knI&up_id=364108423)**
 ```
 ┌────────────────────────────┐
 │  (缺口)                     │
