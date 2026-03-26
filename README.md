@@ -26,40 +26,89 @@ const name = "lihaoyang"
 
 1. 硬件准备与软件安装
 - 软件包括STM32CubeMX、Keil MDK-ARM
-2. 配置GPIO引脚（PB0与PB1）
-- 分别命名为IN1与IN2
+2. 配置GPIO引脚（PA0与PA1）
+- 分别左键设置为GPIO_Output
 3. 配置系统时钟
-- 遇到提示 **“No solution found using the current selected sources”** ,改用内部时钟，设置HCLK为48Hz解决
+- 遇到提示 **“No solution found using the current selected sources”** ,改用内部时钟，最终设置HCLK为8Hz解决
 4. 设置工程并生成代码
 - 遇到提示 **“The Firmware Package or one of its dependencies required by the Project is not available in your STM32CubeMX Repository”** ,下载STM32F1固件包解决
 ***
 ## 3.24
 ### 1) Task1续
 
-5. 在Keil中添加控制代码
+5. 在Keil中添加控制代码，共有两处
 ```javascript
-/* USER CODE BEGIN 3 */
+第一处
+/* USER CODE BEGIN 0 */
+// 电机状态定义
+typedef enum {
+    MOTOR_STOP = 0,  // 停止
+    MOTOR_CW,        // 正转
+    MOTOR_CCW        // 反转
+} Motor_State;
+
+// 电机控制函数
+void Motor_Control(Motor_State state)
+{
+    switch(state) {
+        case MOTOR_STOP:  // 停止
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+            break;
+            
+        case MOTOR_CW:    // 正转
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+            break;
+            
+        case MOTOR_CCW:   // 反转
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+            break;
+    }
+}
+/* USER CODE END 0 */
+
+第二处
+/* USER CODE BEGIN WHILE */
+uint32_t last_tick = HAL_GetTick();  // 记录上次切换时间
+uint8_t motor_mode = 0;              // 当前电机模式
+
 while (1)
 {
-    // 正转：IN1=1, IN2=0
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-    HAL_Delay(2000);   // 延时2秒
-
-    // 停止
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-    HAL_Delay(1000);   // 延时1秒
-
-    // 反转：IN1=0, IN2=1
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-    HAL_Delay(2000);
-
-    // 停止
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-    HAL_Delay(1000);
+    // 每2秒切换一次状态
+    if(HAL_GetTick() - last_tick >= 2000)
+    {
+        last_tick = HAL_GetTick();  // 更新时间
+        
+        switch(motor_mode) {
+            case 0:  // 正转2秒
+                Motor_Control(MOTOR_CW);
+                motor_mode = 1;
+                break;
+                
+            case 1:  // 停止2秒
+                Motor_Control(MOTOR_STOP);
+                motor_mode = 2;
+                break;
+                
+            case 2:  // 反转2秒
+                Motor_Control(MOTOR_CCW);
+                motor_mode = 3;
+                break;
+                
+            case 3:  // 停止2秒，然后重新开始
+                Motor_Control(MOTOR_STOP);
+                motor_mode = 0;
+                break;
+        }
+        
+        HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    }
+    
+    /* USER CODE END WHILE */
+    
+    /* USER CODE BEGIN 3 */
 }
 /* USER CODE END 3 */
 ```
@@ -93,6 +142,10 @@ while (1)
 反思：给**文件夹命名**尽量避开中文和空格。我一开始命名的文件夹名字含中文，结果就是Programmer报错显示乱码字符。
 ***
 ## 3.26
+### 1) Task1终
+7. 结果不理想，重新做一遍Task1
+- 马达直接连电源也是顺着一个方向转！说明我前面做的东西根本没有控制马达的转动
+- 
 ***
 ## 3.27
 ***
