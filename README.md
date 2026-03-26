@@ -38,7 +38,7 @@ const name = "lihaoyang"
 
 5. 在Keil中添加控制代码，共有两处
 ```javascript
-第一处
+//第一处
 /* USER CODE BEGIN 0 */
 // 电机状态定义
 typedef enum {
@@ -68,8 +68,9 @@ void Motor_Control(Motor_State state)
     }
 }
 /* USER CODE END 0 */
-
-第二处
+```
+```javascript
+//第二处
 /* USER CODE BEGIN WHILE */
 uint32_t last_tick = HAL_GetTick();  // 记录上次切换时间
 uint8_t motor_mode = 0;              // 当前电机模式
@@ -150,7 +151,71 @@ while (1)
 - 再点erase，清空内容，回到Keil，点击Download，烧录成功！
 - 再在原有连接基础上，连入L9110与马达，为了保证所谓的“共地”，借助了面包板。
 - 成果如视频Task1演示所示。**顺转两次、停止、逆转两次、停止再循环**（已替换原来一直转的视频）
+### 2）Task2
+1. CubeMX配置
+- 打开Task1的工程文件
+- 左侧选择TIM2，依次选择时钟源：Internal Clock，通道1：PWM Generation CH1，通道2：PWM Generation CH2。
+- 在Parameter Settings选项卡：依次设置参数，Prescaler (PSC)​：71，Counter Mode：​Up，Counter Period (ARR)​：999，Pulse (CH1)：​0，Pulse (CH2)​：0。
+- 点击GENERATE CODE，再点击Open Project，就自动用Keil打开。
+- 编写代码，
+```javascript
+//main.c中，
+/* USER CODE BEGIN WHILE */
+// 启动PWM
+HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+
+// 初始：正转，慢速
+__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_SLOW);
+__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
+
+SpeedState speed_state = SPEED_STATE_SLOW;
+uint32_t last_change = HAL_GetTick();
+
+while (1)
+{
+    uint32_t now = HAL_GetTick();
+    
+    // 每2秒改变一次速度
+    if(now - last_change >= 2000)
+    {
+        last_change = now;
+        
+        // 状态转移：慢→中→快→中→慢→中...
+        switch(speed_state)
+        {
+            case SPEED_STATE_SLOW:
+                __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_MID);
+                speed_state = SPEED_STATE_MID;
+                break;
+                
+            case SPEED_STATE_MID:
+                __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_FAST);
+                speed_state = SPEED_STATE_FAST;
+                break;
+                
+            case SPEED_STATE_FAST:
+                __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_MID);
+                speed_state = SPEED_STATE_MID2;
+                break;
+                
+            case SPEED_STATE_MID2:
+                __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_SLOW);
+                speed_state = SPEED_STATE_SLOW2;
+                break;
+                
+            case SPEED_STATE_SLOW2:
+                __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_MID);
+                speed_state = SPEED_STATE_MID;  // 重新开始循环
+                break;
+        }
+    }
+    
+    /* USER CODE END WHILE */
+    /* USER CODE BEGIN 3 */
+}
+/* USER CODE END 3 */
+```
 ***
 ## 3.27
 ***
-## 3.28
