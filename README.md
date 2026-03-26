@@ -115,7 +115,7 @@ while (1)
 
 6. 连接与烧录
 - 杜邦线母头插不进STM32排针，确认母头无正反之分，适当用力插入
-- 不清楚ST-LINK的接口排布，参考视频**[ST-Link的接线及使用](https://www.bilibili.com/video/BV1TPbyz8Emg?buvid=Y64814682A5A81F748A99AE3AF898D87BC6A&from_spmid=main.my-history.0.0&is_story_h5=false&mid=T3lXMOTTPxrUA5U4Rq0ehw%3D%3D&plat_id=116&share_from=ugc&share_medium=iphone&share_plat=ios&share_session_id=49F0E274-D3C2-4392-9BF3-755EF44B18D8&share_source=WEIXIN&share_tag=s_i&spmid=united.player-video-detail.0.0&timestamp=1774411950&unique_k=cI93knI&up_id=364108423)**
+- 不清楚ST-LINK的接口排布，参考视频[ST-Link的接线及使用](https://www.bilibili.com/video/BV1TPbyz8Emg?buvid=Y64814682A5A81F748A99AE3AF898D87BC6A&from_spmid=main.my-history.0.0&is_story_h5=false&mid=T3lXMOTTPxrUA5U4Rq0ehw%3D%3D&plat_id=116&share_from=ugc&share_medium=iphone&share_plat=ios&share_session_id=49F0E274-D3C2-4392-9BF3-755EF44B18D8&share_source=WEIXIN&share_tag=s_i&spmid=united.player-video-detail.0.0&timestamp=1774411950&unique_k=cI93knI&up_id=364108423)
 ```
 ┌────────────────────────────┐
 │  (缺口)                     │
@@ -146,7 +146,7 @@ while (1)
 7. 结果不理想，重新做一遍Task1
 **马达直接连电源也是顺着一个方向转！说明我前面做的东西根本没有控制马达的转动。**
 - 重新进行到烧录这一步，Keil中点击Download，显示无连接。
-- 切换至Utility，Target->Settings，按住STM32复位键的同时点OK，中间还有一些Mode和Frequency的调整，最终能克服直接点Connect报错的问题。成功显示芯片信息。
+- 切换至Utility，Target->Settings，**按住STM32复位键**的同时点OK，中间还有一些Mode和Frequency的调整，最终能克服直接点Connect报错的问题。成功显示芯片信息。
 - 再点erase，清空内容，回到Keil，点击Download，烧录成功！
 - 再在原有连接基础上，连入L9110与马达，为了保证所谓的“共地”，借助了面包板。
 - 成果如视频Task1演示所示。**顺转两次、停止、逆转两次、停止再循环**（已替换原来一直转的视频）
