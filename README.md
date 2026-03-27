@@ -238,4 +238,8 @@ Motor_PWM_Control(SPEED_SLOW, 1);
 ***
 ## 3.27
 ### 1) Task3
+1. CubeMX配置
+- Connectivity->USART1，Mode选择Asynchronous，勾选USAR1 global interrupt
+- 配置引脚PA9与PA10，生成代码，自动用Keil打开
+2. Keil代码编写
 ***
