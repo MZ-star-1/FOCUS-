@@ -237,4 +237,5 @@ Motor_PWM_Control(SPEED_SLOW, 1);
 - 点击Download，烧录完成。最后在进行与Task1中相同的硬件连接。结果如视频所示。**慢-中-快-中-慢再循环**
 ***
 ## 3.27
+### 1) Task3
 ***
