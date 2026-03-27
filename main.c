@@ -76,45 +76,49 @@ void SystemClock_Config(void);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if(huart->Instance == USART1) {
-        char received_char = rx_buffer[rx_index];  
+        char received_char = rx_buffer[rx_index];  // ????????
         
         
         if(received_char == '\r' || received_char == '\n') {
             if(rx_index > 0) {  // ?????
-                rx_buffer[rx_index] = '\0';  
-                cmd_ready = 1;               
+                rx_buffer[rx_index] = '\0';  // ????????
+                cmd_ready = 1;               // ????????
             }
-            rx_index = 0; 
+            rx_index = 0;  // ????
         }
-      
+        // ???????,????
         else if(rx_index < RX_BUFFER_SIZE - 1) {
             rx_index++;
         }
-       
+        // ?????,??
         else {
             rx_index = 0;
         }
         
-        
+        // ??????,???????
         HAL_UART_Receive_IT(&huart1, (uint8_t*)&rx_buffer[rx_index], 1);
     }
 }
 
-
+/**
+  * @brief ??PWM????(???)
+  * @param duty: ???0-1000
+  * @param direction: 1=??, 2=??, 0=??
+  */
 void Motor_PWM_Control(uint16_t duty, uint8_t direction)
 {
-    if(duty > 999) duty = 999;  
+    if(duty > 999) duty = 999;  // ????
     
     switch(direction) {
-        case 1:  
+        case 1:  // ??
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, duty);
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
             break;
-        case 2: 
+        case 2:  // ??
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, duty);
             break;
-        case 0:  
+        case 0:  // ??
         default:
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
@@ -122,54 +126,63 @@ void Motor_PWM_Control(uint16_t duty, uint8_t direction)
     }
 }
 
-
+/**
+  * @brief ??????
+  * @param str: ???????
+  * @return ??????,??????-1
+  */
 int string_to_int(const char* str)
 {
     int result = 0;
     int i = 0;
     
-   
+    // ????
     while(str[i] == ' ') i++;
     
- 
+    // ???????????
     for(; str[i] != '\0'; i++) {
         if(str[i] >= '0' && str[i] <= '9') {
             result = result * 10 + (str[i] - '0');
         } else {
-            return -1;  
+            return -1;  // ?????
+        }
     }
     
     return result;
 }
 
-
+/**
+  * @brief ??????
+  * @param cmd: ?????????
+  */
 void Parse_Command(const char* cmd)
 {
-    char response[32]; 
+    char response[32];  // ?????
     
+    // ???????????
     char temp_cmd[RX_BUFFER_SIZE];
     strcpy(temp_cmd, cmd);
     
-    
+    // ?????(??,?????????)
     for(int i = 0; temp_cmd[i]; i++) {
         temp_cmd[i] = toupper(temp_cmd[i]);
     }
     
-
+    // ??ON??
     if(strcmp(temp_cmd, CMD_ON) == 0) {
         motor_status = MOTOR_ON;
         Motor_PWM_Control(current_duty, 1);  // ??????????
         sprintf(response, "MOTOR ON (Duty: %d%%)\r\n", current_duty/10);
     }
- 
+    // ??OFF??
     else if(strcmp(temp_cmd, CMD_OFF) == 0) {
         motor_status = MOTOR_OFF;
-        Motor_PWM_Control(0, 0);  
+        Motor_PWM_Control(0, 0);  // ??
         sprintf(response, "MOTOR OFF\r\n");
     }
-   
+    // ??SPEED??
     else if(strncmp(temp_cmd, CMD_SPEED, strlen(CMD_SPEED)) == 0) {
-        
+        // ??????
         char* space_pos = strchr(temp_cmd, ' ');
         if(space_pos != NULL) {
             int speed = string_to_int(space_pos + 1);
@@ -177,7 +190,7 @@ void Parse_Command(const char* cmd)
             if(speed >= 0 && speed <= 100) {
                 current_duty = speed * 10;  // 0-100??0-1000
                 
-               
+                // ????????,???????
                 if(motor_status == MOTOR_ON) {
                     Motor_PWM_Control(current_duty, 1);
                 }
@@ -190,19 +203,22 @@ void Parse_Command(const char* cmd)
             sprintf(response, "ERROR: Invalid SPEED format\r\n");
         }
     }
-   
+    // ????
     else {
         sprintf(response, "ERROR: Unknown command\r\n");
     }
     
-    
+    // ????????
     HAL_UART_Transmit(&huart1, (uint8_t*)response, strlen(response), 100);
 }
 /* USER CODE END 0 */
 
 /* USER CODE END 0 */
 
-
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
 
@@ -253,12 +269,12 @@ int main(void)
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
-   
+    // ????????
     if(cmd_ready) {
-        Parse_Command(rx_buffer);  
-        cmd_ready = 0;             
-      
+        Parse_Command(rx_buffer);  // ????
+        cmd_ready = 0;             // ????
         
+        // ???????
         HAL_UART_Transmit(&huart1, (uint8_t*)"> ", 2, 100);
     }
     
@@ -345,4 +361,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-```
