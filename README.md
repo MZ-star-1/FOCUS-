@@ -1,4 +1,4 @@
-# FOCUS-嵌入式
+# FOCUS-嵌入式（图片大部分是报错的截图）
 ***
 ## 3.23
 ### 1）学写markdown标记语言
@@ -153,68 +153,83 @@ while (1)
 - 成果如视频Task1演示所示。**顺转两次、停止、逆转两次、停止再循环**（已替换原来一直转的视频）
 ### 2）Task2
 1. CubeMX配置
-- 打开Task1的工程文件
+- 打开Task1的工程文件。
+- 再配置一下系统时钟，HCLK中输入72。
+- 配置PWM定时器（针对PA0与PA1），均选择TIM_CH1。
 - 左侧选择TIM2，依次选择时钟源：Internal Clock，通道1：PWM Generation CH1，通道2：PWM Generation CH2。
-- 在Parameter Settings选项卡：依次设置参数，Prescaler (PSC)​：71，Counter Mode：​Up，Counter Period (ARR)​：999，Pulse (CH1)：​0，Pulse (CH2)​：0。
-- 点击GENERATE CODE，再点击Open Project，就自动用Keil打开。
-2. 在Keil中编写代码
+- 在Parameter Settings选项卡：依次设置参数，Prescaler (PSC)​：71，Counter Mode：​Up，Counter Period (ARR)​：999，Pulse (CH1)：​0，Pulse (CH2)​：0，CH Polarity:LOW。
+- 点击GENERATE CODE，再点击Open Project，就会自动用Keil打开。
+2. 在Keil中编写代码，共四处：
 ```javascript
-//main.c中，
-/* USER CODE BEGIN WHILE */
-// 启动PWM
+//在main.h中，有一处
+/* USER CODE BEGIN Private defines */
+// PWM速度等级（占空比0-999）
+#define SPEED_SLOW    200   // 20%占空比
+#define SPEED_MID     500   // 50%占空比
+#define SPEED_FAST    800   // 80%占空比
+
+// 速度状态枚举
+typedef enum {
+    SPEED_STATE_SLOW = 0,
+    SPEED_STATE_MID,
+    SPEED_STATE_FAST,
+    SPEED_STATE_MID2,
+    SPEED_STATE_SLOW2
+} SpeedState;
+/* USER CODE END Private defines */
+```
+```javascript
+//在main.c中，第一处，
+/* USER CODE BEGIN PV */
+// PWM控制变量
+SpeedState current_speed_state = SPEED_STATE_SLOW;
+uint32_t last_speed_change_time = 0;
+const uint32_t SPEED_CHANGE_INTERVAL = 2000;  // 2秒切换一次
+/* USER CODE END PV */
+```
+```javascript
+//在main.c中，第二处，
+/* USER CODE BEGIN 0 */
+/**
+  * @brief 设置电机PWM速度和方向
+  * @param speed: 占空比（0-999）
+  * @param direction: 0=停止, 1=正转, 2=反转
+  */
+void Motor_PWM_Control(uint16_t speed, uint8_t direction)
+{
+    // 限制速度范围
+    if(speed > 999) speed = 999;
+    
+    switch(direction)
+    {
+        case 0:  // 停止
+            __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
+            __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
+            break;
+            
+        case 1:  // 正转
+            __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, speed);
+            __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
+            break;
+            
+        case 2:  // 反转
+            __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
+            __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, speed);
+            break;
+    }
+}
+/* USER CODE END 0 */
+```
+```javascript
+//在main.c中，第三处，
+/* USER CODE BEGIN 2 */
+// 启动PWM输出
 HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
 
-// 初始：正转，慢速
-__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_SLOW);
-__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
-
-SpeedState speed_state = SPEED_STATE_SLOW;
-uint32_t last_change = HAL_GetTick();
-
-while (1)
-{
-    uint32_t now = HAL_GetTick();
-    
-    // 每2秒改变一次速度
-    if(now - last_change >= 2000)
-    {
-        last_change = now;
-        
-        // 状态转移：慢→中→快→中→慢→中...
-        switch(speed_state)
-        {
-            case SPEED_STATE_SLOW:
-                __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_MID);
-                speed_state = SPEED_STATE_MID;
-                break;
-                
-            case SPEED_STATE_MID:
-                __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_FAST);
-                speed_state = SPEED_STATE_FAST;
-                break;
-                
-            case SPEED_STATE_FAST:
-                __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_MID);
-                speed_state = SPEED_STATE_MID2;
-                break;
-                
-            case SPEED_STATE_MID2:
-                __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_SLOW);
-                speed_state = SPEED_STATE_SLOW2;
-                break;
-                
-            case SPEED_STATE_SLOW2:
-                __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, SPEED_MID);
-                speed_state = SPEED_STATE_MID;  // 重新开始循环
-                break;
-        }
-    }
-    
-    /* USER CODE END WHILE */
-    /* USER CODE BEGIN 3 */
-}
-/* USER CODE END 3 */
+// 初始状态：正转，慢速
+Motor_PWM_Control(SPEED_SLOW, 1);
+/* USER CODE END 2 */
 ```
 ***
 ## 3.27
