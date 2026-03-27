@@ -151,7 +151,7 @@ while (1)
 - 再点erase，清空内容，回到Keil，点击Download，烧录成功！
 - 再在原有连接基础上，连入L9110与马达，为了保证所谓的“共地”，借助了面包板。
 - 成果如视频Task1演示所示。**顺转两次、停止、逆转两次、停止再循环**（已替换原来一直转的视频）
-### 2）Task2
+### 2) Task2
 1. CubeMX配置
 - 打开Task1的工程文件。
 - 再配置一下系统时钟，HCLK中输入72。
@@ -231,6 +231,10 @@ HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
 Motor_PWM_Control(SPEED_SLOW, 1);
 /* USER CODE END 2 */
 ```
+3. 编译与烧录 **跟Task1后续类似**
+- Keil中，点击build进行编译。
+- Options For Target->Debug->ST-Link Debugger后的Settings，有芯片信息显示，说明已连接上。**这次竟然连接这么顺利**
+- 点击Download，烧录完成。最后在进行与Task1中相同的硬件连接。结果如视频所示。**慢-中-快-中-慢再循环**
 ***
 ## 3.27
 ***
