@@ -157,7 +157,7 @@ while (1)
 - 左侧选择TIM2，依次选择时钟源：Internal Clock，通道1：PWM Generation CH1，通道2：PWM Generation CH2。
 - 在Parameter Settings选项卡：依次设置参数，Prescaler (PSC)​：71，Counter Mode：​Up，Counter Period (ARR)​：999，Pulse (CH1)：​0，Pulse (CH2)​：0。
 - 点击GENERATE CODE，再点击Open Project，就自动用Keil打开。
-- 编写代码，
+2. 在Keil中编写代码
 ```javascript
 //main.c中，
 /* USER CODE BEGIN WHILE */
