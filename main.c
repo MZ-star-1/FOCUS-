@@ -49,15 +49,15 @@
 
 /* USER CODE BEGIN PV */
 
-SpeedState current_speed_state = SPEED_STATE_SLOW;
-uint32_t last_speed_change_time = 0;
-const uint32_t SPEED_CHANGE_INTERVAL = 2000;  
+SpeedState current_speed_state = SPEED_STATE_SLOW;		// 当前速度状态
+uint32_t last_speed_change_time = 0;					// uint32_t：无符号32位整数，跨平台一致性
+const uint32_t SPEED_CHANGE_INTERVAL = 2000;  			// 速度改变间隔
 
-char rx_buffer[RX_BUFFER_SIZE];  
-uint8_t rx_index = 0;            
-uint8_t cmd_ready = 0;           
-Motor_Status motor_status = MOTOR_OFF;  
-uint16_t current_duty = 200;     
+char rx_buffer[RX_BUFFER_SIZE];  						// 存放字符，串口收到的字符会按顺序放进去;当收到完整命令，就取出来解析
+uint8_t rx_index = 0;            						// 缓冲区指针，指向当前要放字符的位置
+uint8_t cmd_ready = 0;           						// 标记是否有完整命令可以处理
+Motor_Status motor_status = MOTOR_OFF;  				// 记录电机状态
+uint16_t current_duty = 200;     						// 当前PWM占空比
 
 /* USER CODE END PV */
 
@@ -70,32 +70,30 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-/* USER CODE BEGIN 0 */
-
- 
+//串口接收中断回调函数
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    if(huart->Instance == USART1) {
-        char received_char = rx_buffer[rx_index];  
+    if(huart->Instance == USART1) {  // 确保是USART1的中断
+        char received_char = rx_buffer[rx_index];  // 取出刚收到的字符
         
-        
+        // 如果收到回车或换行符（命令结束标志）
         if(received_char == '\r' || received_char == '\n') {
-            if(rx_index > 0) { 
-                rx_buffer[rx_index] = '\0';  
-                cmd_ready = 1;              
+            if(rx_index > 0) {  // 避免空命令
+                rx_buffer[rx_index] = '\0';  // 在字符串末尾加结束符
+                cmd_ready = 1;              // 设置命令就绪标志
             }
-            rx_index = 0;  
+            rx_index = 0;  // 重置索引，准备接收下一条命令
         }
-        
+        // 如果是普通字符，且缓冲区未满
         else if(rx_index < RX_BUFFER_SIZE - 1) {
-            rx_index++;
+            rx_index++;  // 移动到下一个位置
         }
-        
+        // 缓冲区满了，从头开始（防止溢出）
         else {
             rx_index = 0;
         }
         
-        
+        // 重新启动接收，等待下一个字符
         HAL_UART_Receive_IT(&huart1, (uint8_t*)&rx_buffer[rx_index], 1);
     }
 }
@@ -103,18 +101,18 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 void Motor_PWM_Control(uint16_t duty, uint8_t direction)
 {
-    if(duty > 999) duty = 999; 
+    if(duty > 999) duty = 999;  // 限制占空比范围0-999
     
     switch(direction) {
-        case 1: 
+        case 1:  // 正转：PA0输出PWM，PA1输出0
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, duty);
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
             break;
-        case 2:  
+        case 2:  // 反转：PA0输出0，PA1输出PWM
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, duty);
             break;
-        case 0: 
+        case 0:  // 停止：PA0和PA1都输出0
         default:
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
             __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
@@ -128,58 +126,59 @@ int string_to_int(const char* str)
     int result = 0;
     int i = 0;
     
-    
+    // 跳过字符串开头的空格
     while(str[i] == ' ') i++;
     
-    
+    // 逐个字符转换为数字
     for(; str[i] != '\0'; i++) {
         if(str[i] >= '0' && str[i] <= '9') {
             result = result * 10 + (str[i] - '0');
         } else {
-            return -1;  
+            return -1;  // 遇到非数字字符，返回错误
         }
     }
     
     return result;
 }
 
-
 void Parse_Command(const char* cmd)
 {
-    char response[32];  
+    char response[32];  // 存放要返回的信息
     
-    
+    // 复制命令到临时变量（避免修改原命令）
     char temp_cmd[RX_BUFFER_SIZE];
     strcpy(temp_cmd, cmd);
     
-   
+    // 转换为大写（实现命令不区分大小写）
     for(int i = 0; temp_cmd[i]; i++) {
         temp_cmd[i] = toupper(temp_cmd[i]);
     }
     
-    
+    // 解析ON命令
     if(strcmp(temp_cmd, CMD_ON) == 0) {
-        motor_status = MOTOR_ON;
-        Motor_PWM_Control(current_duty, 1);  
+        motor_status = MOTOR_ON;  // 设置状态为运行
+        Motor_PWM_Control(current_duty, 1);  // 以当前占空比正转启动
         sprintf(response, "MOTOR ON (Duty: %d%%)\r\n", current_duty/10);
     }
     
+    // 解析OFF命令
     else if(strcmp(temp_cmd, CMD_OFF) == 0) {
-        motor_status = MOTOR_OFF;
-        Motor_PWM_Control(0, 0);  
+        motor_status = MOTOR_OFF;  // 设置状态为停止
+        Motor_PWM_Control(0, 0);   // 停止电机
         sprintf(response, "MOTOR OFF\r\n");
     }
     
+    // 解析SPEED命令
     else if(strncmp(temp_cmd, CMD_SPEED, strlen(CMD_SPEED)) == 0) {
-        
+        // 查找空格，分离命令和参数
         char* space_pos = strchr(temp_cmd, ' ');
         if(space_pos != NULL) {
-            int speed = string_to_int(space_pos + 1);
+            int speed = string_to_int(space_pos + 1);  // 转换数字部分
             
-            if(speed >= 0 && speed <= 100) {
-                current_duty = speed * 10;  
+            if(speed >= 0 && speed <= 100) {  // 检查范围
+                current_duty = speed * 10;  // 0-100转成0-1000
                 
-               
+                // 如果电机正在运行，立即应用新速度
                 if(motor_status == MOTOR_ON) {
                     Motor_PWM_Control(current_duty, 1);
                 }
@@ -193,14 +192,14 @@ void Parse_Command(const char* cmd)
         }
     }
     
+    // 未知命令
     else {
         sprintf(response, "ERROR: Unknown command\r\n");
     }
     
-   
+    // 通过串口发送响应
     HAL_UART_Transmit(&huart1, (uint8_t*)response, strlen(response), 100);
 }
-/* USER CODE END 0 */
 
 /* USER CODE END 0 */
 
@@ -235,23 +234,26 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   MX_USART1_UART_Init();
- /* USER CODE BEGIN 2 */
+  /* USER CODE BEGIN 2 */
 
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+// 启动PWM输出
+HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
 
+	// 初始化电机状态
 	Motor_PWM_Control(0, 0);
-
+	// 启动串口接收中断
 	HAL_UART_Receive_IT(&huart1, (uint8_t*)rx_buffer, 1);
 
-	char welcome[] = "\r\n===== DC Motor Control System =====\r\n"
+	// 欢迎信息
+	/*char welcome[] = "\r\n===== DC Motor Control System =====\r\n"
                  "Commands:\r\n"
                  "  ON       - Start motor (20% duty)\r\n"
                  "  OFF      - Stop motor\r\n"
                  "  SPEED XX - Set speed (0-100%)\r\n"
                  "==================================\r\n"
                  "> ";
-	HAL_UART_Transmit(&huart1, (uint8_t*)welcome, strlen(welcome), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*)welcome, strlen(welcome), 100);*/
 	/* USER CODE END 2 */
 
   /* Infinite loop */
