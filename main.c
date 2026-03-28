@@ -262,12 +262,12 @@ HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
 	{
    
     if(cmd_ready) {
-        Parse_Command(rx_buffer);  
-        cmd_ready = 0;             
-        
-       
-        HAL_UART_Transmit(&huart1, (uint8_t*)"> ", 2, 100);
-    }
+    Parse_Command(rx_buffer);  // 解析命令
+    cmd_ready = 0;             // 清除标志
+    
+    // 发送命令提示符
+    HAL_UART_Transmit(&huart1, (uint8_t*)"> ", 2, 100);
+}
     
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
@@ -278,7 +278,7 @@ HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
 }
   /* USER CODE END 3 */
 
-
+// STM32系统时钟配置函数
 /**
   * @brief System Clock Configuration
   * @retval None
