@@ -60,27 +60,27 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
-#define SPEED_SLOW    200   
-#define SPEED_MID     500   
-#define SPEED_FAST    800   
+#define SPEED_SLOW    200   // 慢速：20%占空比
+#define SPEED_MID     500   // 中速：50%占空比  
+#define SPEED_FAST    800   // 快速：80%占空比  
 
 
 typedef enum {
-    SPEED_STATE_SLOW = 0,
-    SPEED_STATE_MID,
-    SPEED_STATE_FAST,
-    SPEED_STATE_MID2,
-    SPEED_STATE_SLOW2
+    SPEED_STATE_SLOW = 0,  // 状态0：慢速
+    SPEED_STATE_MID,       // 状态1：中速
+    SPEED_STATE_FAST,      // 状态2：快速
+    SPEED_STATE_MID2,      // 状态3：中速（第二次）
+    SPEED_STATE_SLOW2      // 状态4：慢速（第二次）
 } SpeedState;
 
-#define RX_BUFFER_SIZE 64      
-#define CMD_ON         "ON"    
-#define CMD_OFF        "OFF"   
-#define CMD_SPEED      "SPEED" 
+#define RX_BUFFER_SIZE 64      // 串口接收缓冲区大小
+#define CMD_ON         "ON"    // 启动命令字符串
+#define CMD_OFF        "OFF"   // 停止命令字符串
+#define CMD_SPEED      "SPEED" // 调速命令字符串
 
 typedef enum {
-    MOTOR_OFF = 0,
-    MOTOR_ON
+    MOTOR_OFF = 0,  // 电机停止
+    MOTOR_ON        // 电机运行
 } Motor_Status;
 /* USER CODE END Private defines */
 
